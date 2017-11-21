@@ -28,6 +28,21 @@ var albumMarconi = {
     ]
 };
 
+var albumFish = {
+    title: 'Tilapila',
+    artist: 'Ocean',
+    label: 'Sharks',
+    year: '1947',
+    albumArtUrl: 'assets/images/album_covers/10.png',
+    songs: [
+      { title: 'Fin', duration: '1:01' },
+      { title: 'Eyes', duration: '5:01' },
+      { title: 'Gills', duration: '3:21'},
+      { title: 'Tail', duration: '3:14' },
+      { title: 'Mouth', duration: '2:15'}
+    ]
+};
+
 var createSongRow = function(songNumber, songName, songLength) {
     var template =
        '<tr class="album-view-song-item">'
@@ -61,4 +76,18 @@ var setCurrentAlbum = function(album) {
 
 window.onload = function() {
     setCurrentAlbum(albumPicasso);
+
+    document.getElementsByClassName("album-cover-art")[0].addEventListener("click", function(){
+      console.log("It worked!!!", event);
+
+      var albumTitle = document.getElementsByClassName('album-view-title')[0].innerText;
+
+      if (albumTitle == albumPicasso.title) {
+        setCurrentAlbum(albumMarconi);
+      } else if (albumTitle == albumMarconi.title) {
+        setCurrentAlbum(albumFish);
+      } else if (albumTitle == albumFish.title) {
+        setCurrentAlbum(albumPicasso);
+      }
+    });
 };
