@@ -1,6 +1,21 @@
 var setSong = function(songNumber) {
+  if (currentSoundFile) {
+    currentSoundFile.stop();
+  }
+
   currentlyPlayingSongNumber = songNumber
   currentSongFromAlbum = currentAlbum.songs[songNumber - 1];
+  currentSoundFile = new buzz.sound(currentSongFromAlbum.audioUrl, {
+    formats: [ 'mp3' ],
+    preload: true
+  });
+    setVolume(currentVolume);
+};
+
+var setVolume = function(volume) {
+    if (currentSoundFile) {
+        currentSoundFile.setVolume(volume);
+    }
 };
 
 var createSongRow = function(songNumber, songName, songLength) {
@@ -25,12 +40,19 @@ var createSongRow = function(songNumber, songName, songLength) {
        		$(this).html(pauseButtonTemplate);
           $('.main-controls .play-pause').html(playerBarPlayButton);
           setSong(songNumber);
+          currentSoundFile.play();
           updatePlayerBarSong();
 
        	} else if (currentlyPlayingSongNumber === songNumber) {
-       		$(this).html(playButtonTemplate);
-       		currentlyPlayingSongNumber = null;
-          currentSongFromAlbum = null;
+          if (curentSoundFile.isPaused()){
+            $(this).html(pausedButtonTemplate);
+            $('.main-controls .play-pause').html(playerBarPlayButton);
+            currentSoundFile.play();
+          } else {
+            $(this).html(playButtonTemplate);
+            $('.main-controls .play-pause').html(pauseBarPlayButton);
+            currentSoundFile.pause();
+          }
        	}
     };
 
@@ -98,6 +120,9 @@ var playerBarPauseButton = '<span class="ion-pause"></span>';
 var currentAlbum = null;
 var currentlyPlayingSongNumber = null;
 var currentSongFromAlbum = null;
+var currentSoundFile = null;
+var currentVolume = 80;
+
 
 var $previousButton = $('.main-controls .previous');
 var $nextButton = $('.main-controls .next');
@@ -113,6 +138,8 @@ var nextSong = function() {
     var lastSongNumber = currentlyPlayingSongNumber;
 
     setSong(currentSongIndex + 1);
+    currentSoundFile.play();
+
 
     updatePlayerBarSong();
 
@@ -135,6 +162,7 @@ var previousSong = function() {
     var lastSongNumber = currentlyPlayingSongNumber;
 
     setSong(currentSongIndex + 1);
+    currentSoundFile.play();
 
     updatePlayerBarSong();
 
