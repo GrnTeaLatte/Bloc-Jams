@@ -29,7 +29,7 @@ var createSongRow = function(songNumber, songName, songLength) {
        '<tr class="album-view-song-item">'
      + '  <td class="song-item-number" data-song-number="' + songNumber + '">' + songNumber + '</td>'
      + '  <td class="song-item-title">' + songName + '</td>'
-     + '  <td class="song-item-duration">' + songLength + '</td>'
+     + '  <td class="song-item-duration">' + filterTimeCode(songLength) + '</td>'
      + '</tr>'
      ;
 
@@ -49,10 +49,10 @@ var createSongRow = function(songNumber, songName, songLength) {
           currentSoundFile.play();
           updateSeekBarWhileSongPlays();
 
-         var $volumeFill = $('.volume .fill');
-         var $volumeThumb = $('.volume .thumb');
-         $volumeFill.width(currentVolume + '%');
-         $volumeThumb.css({left: currentVolume + '%'});
+          var $volumeFill = $('.volume .fill');
+          var $volumeThumb = $('.volume .thumb');
+          $volumeFill.width(currentVolume + '%');
+          $volumeThumb.css({left: currentVolume + '%'});
 
           updatePlayerBarSong();
 
@@ -181,12 +181,11 @@ var trackIndex = function(album, song) {
 };
 
 var updatePlayerBarSong = function() {
-
     $('.currently-playing .song-name').text(currentSongFromAlbum.title);
     $('.currently-playing .artist-name').text(currentAlbum.artist);
     $('.currently-playing .artist-song-mobile').text(currentSongFromAlbum.title + " - " + currentAlbum.artist);
     $('.main-controls .play-pause').html(playerBarPauseButton);
-    setTotalTimeInPlayerBar(currentSoundFile.getDuration());
+    setTotalTimeInPlayerBar(currentSongFromAlbum.duration);
 };
 
 var playButtonTemplate = '<a class="album-song-button"><span class="ion-play"></span></a>';
@@ -200,11 +199,9 @@ var currentSongFromAlbum = null;
 var currentSoundFile = null;
 var currentVolume = 80;
 
-
 var $previousButton = $('.main-controls .previous');
 var $nextButton = $('.main-controls .next');
 var $playButton = $('.main-controls .play-pause');
-
 
 var nextSong = function() {
     var currentSongIndex = trackIndex(currentAlbum, currentSongFromAlbum);
@@ -219,8 +216,6 @@ var nextSong = function() {
     setSong(currentSongIndex + 1);
     currentSoundFile.play();
     updateSeekBarWhileSongPlays();
-
-
 
     updatePlayerBarSong();
 
@@ -245,7 +240,6 @@ var previousSong = function() {
     setSong(currentSongIndex + 1);
     currentSoundFile.play();
     updateSeekBarWhileSongPlays();
-
 
     updatePlayerBarSong();
 
@@ -286,7 +280,9 @@ var setTotalTimeInPlayerBar = function(totalTime) {
 var filterTimeCode = function(timeInSeconds) {
   var seconds = parseFloat(timeInSeconds);
   var minutes = Math.floor(seconds / 60);
-  return '' + minutes + ':' + Math.floor(seconds - minutes * 60);
+  seconds = Math.floor(seconds - minutes * 60)
+  if (seconds < 10) {seconds = "0"+seconds;}
+  return '' + minutes + ':' + seconds;
 };
 
 $(document).ready(function() {
