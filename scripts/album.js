@@ -47,6 +47,7 @@ var createSongRow = function(songNumber, songName, songLength) {
           $('.main-controls .play-pause').html(playerBarPlayButton);
           setSong(songNumber);
           currentSoundFile.play();
+          updateSeekBarWhileSongPlays();
 
          var $volumeFill = $('.volume .fill');
          var $volumeThumb = $('.volume .thumb');
@@ -56,13 +57,15 @@ var createSongRow = function(songNumber, songName, songLength) {
           updatePlayerBarSong();
 
        	} else if (currentlyPlayingSongNumber === songNumber) {
-          if (curentSoundFile.isPaused()){
-            $(this).html(pausedButtonTemplate);
-            $('.main-controls .play-pause').html(playerBarPlayButton);
+          if (currentSoundFile.isPaused()){
+            $(this).html(pauseButtonTemplate);
+            $('.main-controls .play-pause').html(playerBarPauseButton);
             currentSoundFile.play();
+            updateSeekBarWhileSongPlays();
+
           } else {
             $(this).html(playButtonTemplate);
-            $('.main-controls .play-pause').html(pauseBarPlayButton);
+            $('.main-controls .play-pause').html(playerBarPlayButton);
             currentSoundFile.pause();
           }
        	}
@@ -112,12 +115,10 @@ var setCurrentAlbum = function(album) {
 
 var updateSeekBarWhileSongPlays = function() {
     if (currentSoundFile) {
-        // #10
         currentSoundFile.bind('timeupdate', function(event) {
-            // #11
             var seekBarFillRatio = this.getTime() / this.getDuration();
             var $seekBar = $('.seek-control .seek-bar');
-
+            setCurrentTimeInPlayerBar(this.getTime());
             updateSeekPercentage($seekBar, seekBarFillRatio);
         });
     }
@@ -147,8 +148,7 @@ var setupSeekBars = function() {
         } else {
           setVolume(seekBarFillRatio * 100);
         }
-        // Use fill ratio if parent is volume control
-        // else use song duration
+
         updateSeekPercentage($(this), seekBarFillRatio);
     });
     $seekBars.find('.thumb').mousedown(function(event) {
@@ -186,7 +186,7 @@ var updatePlayerBarSong = function() {
     $('.currently-playing .artist-name').text(currentAlbum.artist);
     $('.currently-playing .artist-song-mobile').text(currentSongFromAlbum.title + " - " + currentAlbum.artist);
     $('.main-controls .play-pause').html(playerBarPauseButton);
-
+    setTotalTimeInPlayerBar(currentSoundFile.getDuration());
 };
 
 var playButtonTemplate = '<a class="album-song-button"><span class="ion-play"></span></a>';
@@ -218,6 +218,8 @@ var nextSong = function() {
 
     setSong(currentSongIndex + 1);
     currentSoundFile.play();
+    updateSeekBarWhileSongPlays();
+
 
 
     updatePlayerBarSong();
@@ -242,6 +244,8 @@ var previousSong = function() {
 
     setSong(currentSongIndex + 1);
     currentSoundFile.play();
+    updateSeekBarWhileSongPlays();
+
 
     updatePlayerBarSong();
 
@@ -256,15 +260,33 @@ var previousSong = function() {
   };
 
 var togglePlayFromPlayerBar = function() {
-    if (curentSoundFile.isPaused()){
-      $(this).html(pausedButtonTemplate);
-      $('.main-controls .play-pause').html(playerBarPlayButton);
+    if (currentSoundFile.isPaused()){
+      $('.album-song-button').html(pauseButtonTemplate);
+      $('.main-controls .play-pause').html(playerBarPauseButton);
       currentSoundFile.play();
+      updateSeekBarWhileSongPlays();
+
     } else {
-      $(this).html(playButtonTemplate);
-      $('.main-controls .play-pause').html(pauseBarPlayButton);
+      $('.album-song-button').html(playButtonTemplate);
+      $('.main-controls .play-pause').html(playerBarPlayButton);
       currentSoundFile.pause();
     }
+};
+
+var setCurrentTimeInPlayerBar = function(currentTime) {
+    var currentTimeCell = $('.current-time');
+    currentTimeCell.html(filterTimeCode(currentTime));
+};
+
+var setTotalTimeInPlayerBar = function(totalTime) {
+  var totalTimeCell = $('.total-time');
+  totalTimeCell.html(filterTimeCode(totalTime));
+};
+
+var filterTimeCode = function(timeInSeconds) {
+  var seconds = parseFloat(timeInSeconds);
+  var minutes = Math.floor(seconds / 60);
+  return '' + minutes + ':' + Math.floor(seconds - minutes * 60);
 };
 
 $(document).ready(function() {
